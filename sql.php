@@ -1,42 +1,34 @@
 <?php
 
-$user = 'root';
-$pwd = '';
-$db = new PDO('mysql:host=localhost;port=3306;dbname=cinema',$user, $pwd);
-$db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_WARNING);
-$db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE,PDO::FETCH_OBJ);
+require_once('./vendor/autoload.php');
+
+use App\Entity\Acteur;
+use App\Repository\ActeurRepository;
+
+//algo Acteur
+$repoActeur = new ActeurRepository();
 
 //select
-$sql = 'SELECT * FROM acteur';
+$listActeur = $repoActeur->getAllActeur();
 
-$stmt = $db->query($sql);
-
-foreach ($stmt as $acteur) {
+foreach ($listActeur as $acteur) {
     print_r($acteur);
 }
 
 //insert
-$stmt = $db->prepare('INSERT INTO acteur(nom, prenom) VALUE(:nom, :prenom)');
-$nom = 'poussel';
-$prenom = 'olivier';
-$stmt->bindParam(':nom', $nom);
-$stmt->bindParam(':prenom', $prenom);
-$result = $stmt->execute();
-$id = $db->lastInsertId();
-echo 'Insert : '.(($result)? 'oui': 'non').'. Id : '.$id.PHP_EOL;
+$newActeur = new Acteur(null, 'Poussel', 'Olivier');
+$newActeur = $repoActeur->createActeur($newActeur);
+
+echo 'Insert : '.(($newActeur)? 'oui': 'non').'. Id : '.$newActeur->getId().PHP_EOL;
 
 //update
-$stmt = $db->prepare('UPDATE acteur SET nom = :nom, prenom = :prenom where id= :id');
-$nom = 'Pitt';
-$prenom = 'Brad';
-$stmt->bindParam(':nom', $nom);
-$stmt->bindParam(':prenom', $prenom);
-$stmt->bindParam(':id', $id);
-$result = $stmt->execute();
-echo 'Update : '.(($result)? 'oui': 'non').PHP_EOL;
+$newActeur
+    ->setNom('Pitt')
+    ->setPrenom('Brad')
+;
+$newActeur = $repoActeur->updateActeur($newActeur);
+echo 'Update : '.(($newActeur)? 'oui': 'non').PHP_EOL;
 
 // //delete
-$stmt = $db->prepare('DELETE FROM acteur where id= :id');
-$stmt->bindParam(':id', $id);
-$result = $stmt->execute();
+$result = $repoActeur->deleteActeur($newActeur);
 echo 'Delete : '.(($result)? 'oui': 'non').PHP_EOL;
